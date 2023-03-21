@@ -88,6 +88,59 @@ outputsに指定されたものはturboタスク終了後、キャッシュに�
 ```
   - ビルド後にディレクトリ内の`.next`を削除して再度ビルドするとキャッシュから復元される
 
+- [Configuring Cache Inputs](https://turbo.build/repo/docs/core-concepts/caching#configuring-cache-inputs)  
+`turbo.json`内で`inputs`を指定することで特定のファイルの変更を検知してキャッシュとみなすかどうかを管理できる
+
+- [リモートキャッシング](https://turbo.build/repo/docs/core-concepts/remote-caching)  
+Vercelなどのプロバイダーと連携することで、Turborepo はリモート キャッシュ (タスクの結果を保存するクラウド サーバー) と安全に通信できる
+  - `turbo login`、`turbo link`とすると、キャッシュ アーティファクトがローカルとリモート キャッシュに保存される
+  - CI/CD、デプロイなど、キャッシュがあればリソース削減につながる
+
+- [workspaceのフィルタリング](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)  
+`--filter`コマンドを使うことで、タスクを実行するworkspaceを選択できる
+```
+turbo build --filter=my-pkg --filter=my-app
+```
+```
+turbo run build --filter=admin-*
+```
+- [Configuring Workspaces](https://turbo.build/repo/docs/core-concepts/monorepos/configuring-workspaces)  
+ルートで定義されたタスクの構成をオーバーライドするには`turbo.json`で指定していたが、任意のworkspaceに`turbo.json`を作成し、最上位の`extends`キーを使用して設定できる
+```
+{
+  "extends": ["//"],
+  "pipeline": {
+    "build": {
+      // custom configuration for the build task in this workspace
+    },
+    // new tasks only available in this workspace
+    "special-task": {},
+  }
+}
+```
+
+- [Comparison to Workspace-specific tasks](https://turbo.build/repo/docs/core-concepts/monorepos/configuring-workspaces#comparison-to-workspace-specific-tasks)  
+Workspace Configurations はroot のworkspace#task構文とよく似ているが重要な違いが1つある
+  - workspace#taskでは設定が完全に上書きされるため、重複するものでも複製する必要がある
+```
+  {
+  "pipeline": {
+    "build": {
+      "outputMode": "hash-only",
+      "inputs": ["src/**"],
+      "outputs": [".next/**", "!.next/cache/**"],
+    },
+    "my-sveltekit-app#build": {
+      "outputMode": "hash-only", // must duplicate this
+      "inputs": ["src/**"], // must duplicate this
+      "outputs": [".svelte-kit/**"]
+    }
+  }
+}
+```
+  - Workspace Configurationsでは`outputMode`、`inputs`は継承されるため複製する必要はない
+
+
 ## [公式ドキュメント](https://turbo.build/repo/docs)
 ### What is a Monorepo?
 ```
