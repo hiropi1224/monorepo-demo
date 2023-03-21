@@ -70,6 +70,23 @@ module.exports = {
   - packages/uiはカレントディレクトリに`.eslintrc.js`を持たないため上のディレクトリに探しに行き、ルートにある`.eslintrc.js`を参照する
   - カレントディレクトリに`.eslintrc.js`を作成してルールを追加することで、特定のworkspaceのみルールを適用することもできる
 
+- `turbo lint`コマンド実行でlintを走らせる
+  - 1度走らせたものはキャッシュされ、変更がないものはチェックされない  
+  [Using the cache](https://turbo.build/repo/docs/getting-started/create-new#using-the-cache)
+  - `package.json`にlintの設定があるものが実行されている
+
+- `turbo.json`のbuild設定について  
+outputsに指定されたものはturboタスク終了後、キャッシュに保存される
+```
+{
+  "pipeline": {
+    "build": {
+      "outputs": [".next/**", "!.next/cache/**"]
+    }
+  }
+}
+```
+  - ビルド後にディレクトリ内の`.next`を削除して再度ビルドするとキャッシュから復元される
 
 ## [公式ドキュメント](https://turbo.build/repo/docs)
 ### What is a Monorepo?
